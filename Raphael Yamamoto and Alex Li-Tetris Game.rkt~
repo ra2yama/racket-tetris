@@ -4,33 +4,5 @@
 ;; Our Tetris Game
 
 
-;;World Struct
-;; contains the matrix, the score, and the active tetra (the one that is falling)
-
-
-
-
-;; Grid
-;; a 10 by 20 grid, each block
-
-(define WIDTH 10)
-(define HEIGHT 20)
-(define block-size 50)
-
-;; Matrix
-;; The matrix is a 2D lists of list
-
-
-
-
-
-
-
-
-;; Draw Function : 
-(define on-draw 
-
 
 ;;falalalalala
-
-;; (big-bang 
