@@ -1,6 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-beginner-reader.ss" "lang")((modname |Raphael Yamamoto and Alex Li-Tetris Game|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp")) #f)))
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname |Raphael Yamamoto and Alex Li-Tetris Game|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #f)))
 ;; Our Tetris Game
 
 ;;recursive template:
@@ -38,34 +38,54 @@
 ;;  applies function to each element of the list and returns a list
 ;;
 
-;;(define (recur my-list func)
- ;; (cond
-    ;;[(empty? my-list) empty]
-   ;; [else (cons (func (first (my-list))) (recur (rest my-list) func))])
-  ;;)
-
-;;recur-by-number : Number Number Lambda -> Lambda
-;;  runs function for every number of thing
-;;
-;;(recur-by-number 10 0 (lambda (num) 10))) -> 0,1,2,3,4,5,6,7,8,9,10
-
-(define (recur-by-number max index func)
+#;(define (recur my-list func)
   (cond
-    [(>= index max) (func index)]
-    [else (func index) (recur-by-number max (+ index 1) func)])
+    [(empty? my-list) empty]
+    [else (cons (func (first (my-list))) (recur (rest my-list) func))])
   )
+
+
+(define (plus-1 n)
+  (+ n 1))
+(define (do-to-every-num f l)
+  (cond
+    [(empty? l) empty]
+    [else (cons (f (first l)) (do-to-every-num f (rest l)))] ))
+
+;recur : start end f 
+
+                 
+
+;; Tetra block : Struct
+
+(struct tetra (color center blocks)
+
+
+
+;; recur : num num num (num -> num) -> (num -> num)
+;; takes in a start, end, func -> start and end are now f(start) and f(end)
+;; 
+
+
+
+
+#; (define (recur index check repeat func)
+  ;; index is a number, check, repeat, and index are all functions, 
+  (cond
+   [(not(check index))]
+  ))
 
 ;; Draw Function : world -> image
 ;;  given worldstate, returns an image
 ;;
 
-(define (draw w)
+#;(define (draw w)
   grid
   )
 
 ;;falalalalala
 
-(big-bang 0
+#;(big-bang 0
           [on-tick tick]
           [on-draw draw]
           [on-key key])
