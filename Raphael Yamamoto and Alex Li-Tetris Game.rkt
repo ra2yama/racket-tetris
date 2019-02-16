@@ -21,7 +21,7 @@
 (define HEIGHT 20)
 (define BLOCK-SIZE 50) ;; size of individual block in grid
 
-;; (define grid (make-grid WIDTH HEIGHT BLOCK-SIZE))
+(define grid (make-grid WIDTH HEIGHT BLOCK-SIZE))
 
 ;; Matrix
 ;; The matrix is a 2D lists of list
@@ -37,6 +37,12 @@
 ;;recur: list of anything function -> list of anything
 ;;  applies function to each element of the list and returns a list
 ;;
+
+(define (make-grid WIDTH HEIGHT BLOCK-SIZE)
+  
+  )
+
+;; recurfunc : number number size-> image
 
 #;(define (recur my-list func)
   (cond
@@ -56,11 +62,33 @@
 
                  
 
-;; Tetra block : Struct
+;; Tetra block : Struct which contains the color of the tetra
+;; the center of the tetra in which it rotates, and the rotation mode;
+;; if the rotation point is at a corner of the block or if it is 
 
-(struct tetra (color center blocks)
+(struct tetra (color center center-corner? blocks))
 
+(define (O-tetra "green" (posn 1 -1) true
+                 (list (posn 0 0) (posn 1 0) (posn 0 -1) (posn -1 -1))))
+;; the o block, which will be green, its 
 
+(define (L-tetra "purple" (posn 1 -1) false
+                 (list (posn 0 -1) (posn 1 -1) (posn 2 -1) (posn 2 0))))
+
+(define (J-tetra "cyan" (posn 1 -1) false
+                 (list (posn 0 -1) (posn 1 -1) (posn 2 -1) (posn 0 0))))
+
+(define (I-tetra "darkblue" (posn 2 -1) true
+                 (list (posn 0 0) (posn 1 0) (posn 2 0) (posn 3 0))))
+
+(define (T-tetra "orange" (posn 1 -1) false
+                 (list (posn 0 -1) (posn 1 -1) (posn 1 0) (posn 2 -1))))
+
+(define (Z-tetra "pink" (posn 1 -1) false
+                 (list (posn 0 0) (posn 1 0) (posn 1 -1) (posn 2 -1))))
+
+(define (S-tetra "red" (posn 1 -1) false
+                 (list (posn 0 -1) (posn 1 -1) (posn 1 0) (posn 2 0))))
 
 ;; recur : num num num (num -> num) -> (num -> num)
 ;; takes in a start, end, func -> start and end are now f(start) and f(end)
@@ -80,12 +108,12 @@
 ;;
 
 #;(define (draw w)
-  grid
+  (draw-tetra (world-active-tetra w) grid)
   )
 
 ;;falalalalala
 
-#;(big-bang 0
+#;(big-bang (world 0 T-tetra 0)
           [on-tick tick]
           [on-draw draw]
           [on-key key])
