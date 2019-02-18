@@ -1,6 +1,3 @@
-;; The first three lines of this file were inserted by DrRacket. They record metadata
-;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-advanced-reader.ss" "lang")((modname |Raphael Yamamoto and Alex Li-Tetris Game|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #f)))
 ;; Our Tetris Game
 
 ;;recursive template:
@@ -46,11 +43,31 @@
 ;;  creates grid coord
 ;;
 
-(define (create-grid-posns WIDTH HEIGHT )
+
+;; list-increment : Number Number Number-> List of Numbers
+;; takes in three numbers, the first number being the start
+;; and the second being the end number, and the third number would be the one
+;; you are incrementing it by and returns a list of those numbers incremented by
+;; each number
+
+;; 1 10 30, -> (list 30 60 90 120 ... 300)
+
+(define (list-increment start.num end.num increment.num)
+  (cond
+    [(> start end) 
+  
+
+
+
+
+
+ #;(define (create-grid-posns WIDTH HEIGHT )
   (repeat 1 (+ HEIGHT 1) (lambda (i) (repeat 1 (+ WIDTH 1) (lambda (j) ()))))
   )
 
-(define grid-posns (create-grid-posns WIDTH HEIGHT))
+(define grid-posns (create-grid-posns WIDTH HEIGHT)
+  (cond 
+    [()
 
 ;; Matrix
 ;; The matrix is a 2D lists of list
