@@ -115,7 +115,7 @@
 (define I-tetra (make-tetra "darkblue" (make-posn 2 -1) true
                             (list (make-posn 0 0) (make-posn 1 0) (make-posn 2 0) (make-posn 3 0))))
 
-(define T-tetra (make-tetra "orange" (make-posn 1 -1) false
+(define T-tetra (make-tetra "orange" (make-posn 1 1) false
                             (list (make-posn 0 1) (make-posn 1 1) (make-posn 1 0) (make-posn 2 1))))
 
 (define Z-tetra (make-tetra "pink" (make-posn 1 -1) false
@@ -165,18 +165,18 @@
 
 (define (draw w)
   ;;(draw-tetra w grid-image)
-  (make-tetra-image T-tetra grid-image)
+  (make-tetra-image (world-active-tetra w) grid-image)
   )
 
-(define (key k w)
-  k
+(define (key w k)
+  w
   )
 
 (define (tick w) w)
 
 ;;falalalalala
 
-(big-bang (make-world 0 I-tetra -10000)
+(big-bang (make-world 0 L-tetra -10000)
   [on-tick tick]
   [on-draw draw]
   [on-key key])
