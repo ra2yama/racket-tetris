@@ -1,8 +1,15 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname |Raphael Yamamoto and Alex Li-Tetris Game|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp")) #f)))
 ;; Our Tetris Game
 
 ;;recursive template:
 ;;  (define (recursive list func))
 ;;
+
+;;MS. JAFARI NOTES:
+;;Grade: A+++++++++++++++++++
+;;nice job guys your use of begin was amazign
 
 ;;World Struct
 ;; contains the matrix, the score, and the active tetra (the one that is falling)
@@ -17,7 +24,11 @@
 
 (define WIDTH 10)
 (define HEIGHT 20)
+
 (define BLOCK-SIZE 40) ;; size of individual block in grid
+
+(define TOTAL-WIDTH (* WIDTH BLOCK-SIZE))
+(define TOTAL-HEIGHT (* HEIGHT BLOCK-SIZE))
 
 (define dimensions (make-posn (* WIDTH BLOCK-SIZE) (* HEIGHT BLOCK-SIZE)))
 
@@ -26,7 +37,33 @@
   WIDTH
   )
 
-(define grid (make-grid WIDTH HEIGHT BLOCK-SIZE))
+;;my-range : number number function -> list
+;;  returns a list of numbers that have been passed
+;;  through the function and iterated upon
+;;
+;;example : (my-range 1 5 (lambda (n) (* n 10))) -> (list 10 20 30 40 50)
+
+(define (my-range start end f)
+  (cond
+    [(>= start end) (cons (f start) empty)]
+    [else (cons (f start) (my-range (+ start 1) end f))])
+  )
+
+(define gridX (my-range 1 (- WIDTH 1) (lambda (n) (* n BLOCK-SIZE))))
+(define gridY (my-range 1 (- HEIGHT 1) (lambda (n) (* n BLOCK-SIZE))))
+
+;;create-grid-image : list list grid-size-> image
+;;  returns a grid image based on lists given
+;;
+
+(define (create-grid-image x y width height W H)
+  (cond
+    [(empty? y) (rectangle width height "solid" "white")]
+    [(empty? x) (add-line (create-grid-image x (rest y) height width W H) 0 (first y) W (first y) "black")]
+    [else (add-line (create-grid-image (rest x) y height width W H) (first x) 0 (first x) H "black")])
+  )
+
+(define grid-image (create-grid-image gridX gridY WIDTH HEIGHT TOTAL-WIDTH TOTAL-HEIGHT))
 
 ;;repeat : Number Number Function -> Number
 ;;  iterates based on number from (in-range start end)
@@ -39,35 +76,18 @@
     [else (begin (f start) (repeat (+ 1 start) end f))])
   )
 
-;;create-grid-posns : Number Number -> listofposns
-;;  creates grid coord
+;;join-lists: list list -> list
+;;  joins two lists
 ;;
+;;examples: (join-lists (list 1 543 5 23 2 2) (list 2 54 3 3 2 2 22222 2 43 5)) -> (list 1 543 5 23 2 2 2 54 3 3 2 2 22222 2 43 5)
 
-
-;; list-increment : Number Number Number-> List of Numbers
-;; takes in three numbers, the first number being the start
-;; and the second being the end number, and the third number would be the one
-;; you are incrementing it by and returns a list of those numbers incremented by
-;; each number
-
-;; 1 10 30, -> (list 30 60 90 120 ... 300)
-
-(define (list-increment start.num end.num increment.num)
+(define (join-lists list1 list2)
   (cond
-    [(> start end) 
-  
-
-
-
-
-
- #;(define (create-grid-posns WIDTH HEIGHT )
-  (repeat 1 (+ HEIGHT 1) (lambda (i) (repeat 1 (+ WIDTH 1) (lambda (j) ()))))
+    [(empty? list2) empty]
+    [(empty? list1) (cons (first list2) (join-lists list1 (rest list2)))]
+    [else (cons (first list1) (join-lists (rest list1) list2))]
+    )
   )
-
-(define grid-posns (create-grid-posns WIDTH HEIGHT)
-  (cond 
-    [()
 
 ;; Matrix
 ;; The matrix is a 2D lists of list
@@ -149,7 +169,7 @@
 ;;
 
 (define (draw w)
-  (rectangle (posn-x dimensions) (posn-y dimensions) "solid" "white")
+  grid-image
   )
 
 (define (key k w)
@@ -164,3 +184,15 @@
           [on-tick tick]
           [on-draw draw]
           [on-key key])
+
+;;TEST SECTION
+
+;;my-range test
+
+(check-expect (my-range 1 5 (lambda (n) (* n 40))) (list 40 80 120 160 200))
+
+(check-expect (my-range -1 -100 (lambda (n) (* n 40))) (list -40))
+
+;;join-lists test
+
+(check-expect (join-lists (list 1 543 5 23 2 2) (list 2 54 3 3 2 2 22222 2 43 5)) (list 1 543 5 23 2 2 2 54 3 3 2 2 22222 2 43 5))
