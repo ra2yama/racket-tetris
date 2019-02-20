@@ -14,9 +14,10 @@
 ;;thx ms jafari
 
 ;;World Struct
-;; contains the matrix, the score, and the active tetra (the one that is falling)
+;; contains the matrix, the score, and the active tetra
+;; (the one that is falling)
 
-(require 2htdp/universe)
+(require 2htdp/universe )
 (require 2htdp/image)
 
 ;; Grid
@@ -73,8 +74,9 @@
 (define (repeat start end f)
   (cond
     [(>= start (- end 1)) (f start)]
-    [else (begin (f start) (repeat (+ 1 start) end f))])
-  )
+    [else (begin (f start) (repeat (+ 1 start) end f))]))
+;; this has begin, though we don't use this function yet
+
 
 ;;join-lists: list list -> list
 ;;  joins two lists
@@ -102,33 +104,33 @@
 
 (define-struct tetra (color center center-corner? blocks))
 
-(define O-tetra (make-tetra "green" (make-posn 1 -1) true
-                            (list (make-posn 0 0) (make-posn 1 0) (make-posn 0 -1) (make-posn -1 -1))))
+(define O-tetra (make-tetra "green" (make-posn 1 1) true
+                            (list (make-posn 0 0) (make-posn 1 0) (make-posn 0 1) (make-posn 1 1))))
 ;; the o block, which will be green, its 
 
-(define L-tetra (make-tetra "purple" (make-posn 1 -1) false
-                            (list (make-posn 0 -1) (make-posn 1 -1) (make-posn 2 -1) (make-posn 2 0))))
+(define L-tetra (make-tetra "purple" (make-posn 1 1) false
+                            (list (make-posn 0 1) (make-posn 1 1) (make-posn 2 1) (make-posn 2 0))))
 
-(define J-tetra (make-tetra "cyan" (make-posn 1 -1) false
-                            (list (make-posn 0 -1) (make-posn 1 -1) (make-posn 2 -1) (make-posn 0 0))))
+(define J-tetra (make-tetra "cyan" (make-posn 1 1) false
+                            (list (make-posn 0 1) (make-posn 1 1) (make-posn 2 1) (make-posn 0 0))))
 
-(define I-tetra (make-tetra "darkblue" (make-posn 2 -1) true
+(define I-tetra (make-tetra "darkblue" (make-posn 2 1) true
                             (list (make-posn 0 0) (make-posn 1 0) (make-posn 2 0) (make-posn 3 0))))
 
 (define T-tetra (make-tetra "orange" (make-posn 1 1) false
                             (list (make-posn 0 1) (make-posn 1 1) (make-posn 1 0) (make-posn 2 1))))
 
-(define Z-tetra (make-tetra "pink" (make-posn 1 -1) false
-                            (list (make-posn 0 0) (make-posn 1 0) (make-posn 1 -1) (make-posn 2 -1))))
+(define Z-tetra (make-tetra "pink" (make-posn 1 1) false
+                            (list (make-posn 0 0) (make-posn 1 0) (make-posn 1 1) (make-posn 2 1))))
 
-(define S-tetra (make-tetra "red" (make-posn 1 -1) false
-                            (list (make-posn 0 -1) (make-posn 1 -1) (make-posn 1 0) (make-posn 2 0))))
+(define S-tetra (make-tetra "red" (make-posn 1 1) false
+                            (list (make-posn 0 1) (make-posn 1 1) (make-posn 1 0) (make-posn 2 0))))
 
 ;;
 ;;BIG BANG STUFF
 ;;
 
-(define-struct world (matrix active-tetra score))
+(define-struct world (matrix active-tetra score time))
 
 ;;draw-tetra : world image -> image
 ;;  adds the active tetra to the scene
@@ -137,6 +139,37 @@
 #;(define (draw-tetra w image)
     ()
     )
+
+;;move-tetra-x: tetra Number -> yeeeneenneneneneneeeeeeeeenr (a.k.a. tetra)
+;;  moves tetra laterally
+;;
+;;
+
+;;center-tetra : tetra
+;;
+;;
+
+(define (move-tetra t posn-amnt)
+  (make-tetra (tetra-color t) (tetra-center t) (tetra-center-corner? t) (add-posn-list (tetra-blocks t) posn-amnt)))
+
+;;add-posn-list: listofposns posn -> list
+;;  adds posn to each posn of list
+;;
+;;(list (posn 10 1) (posn 2 2)) (posn 0 0) -> (list (posn 10 1) (posn 2 2))
+
+(define (add-posn-list list my-posn)
+  (cond
+    [(empty? list) empty]
+    [else (cons (posn-add (first list) my-posn) (add-posn-list (rest list) my-posn))]))
+
+;;posn-add : posn posn -> posn
+;;  takes posns and adds them together
+;;
+;; (posn 1 0) (posn 0 0) -> (posn 1 0)
+
+(define (posn-add p1 p2)
+  (make-posn (+ (posn-x p1) (posn-x p2)) (+ (posn-y p1) (posn-y p2)))
+  )
 
 ;;make-tetra-image : tetra -> image
 ;;  makes an image representation of a tetra
@@ -152,12 +185,10 @@
                         (make-tetra (tetra-color t)
                                     (tetra-center t)
                                     (tetra-center-corner? t)
-                                    (rest (tetra-blocks t))) image))])
-  )
+                                    (rest (tetra-blocks t))) image))]))
 
 (define (grid->coord pos size)
-  (make-posn (+ (* (posn-x pos) size) (/ size 2)) (+ (* (posn-y pos) size) (/ size 2)))
-  )
+  (make-posn (+ (* (posn-x pos) size) (/ size 2)) (+ (* (posn-y pos) size) (/ size 2))))
 
 ;; Draw Function : world -> image
 ;;  given worldstate, returns an image
@@ -165,18 +196,19 @@
 
 (define (draw w)
   ;;(draw-tetra w grid-image)
-  (make-tetra-image (world-active-tetra w) grid-image)
-  )
+  (make-tetra-image (world-active-tetra w) grid-image))
 
 (define (key w k)
   w
   )
 
-(define (tick w) w)
+(define (tick w)
+ (make-world (world-matrix w) (world-active-tetra w) (world-score w) (+ (world-time w) 1))
+  )
 
 ;;falalalalala
 
-(big-bang (make-world 0 L-tetra -10000)
+(big-bang (make-world 0 (move-tetra I-tetra (make-posn 3 0)) -10000 0)
   [on-tick tick]
   [on-draw draw]
   [on-key key])
