@@ -1,22 +1,16 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
 #reader(lib "htdp-advanced-reader.ss" "lang")((modname |Raphael Yamamoto and Alex Li-Tetris Game|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp")) #f)))
-;; Our Tetris Game
+;; Our Tetris Game 
 
-;;recursive template:
-;;  (define (recursive list func))
-;;
+;; Recursive Template
+#;(define (function list)
+  (cond
+    [(empty? list) empty]
+    [else (cons (fist list) (function (rest list)))]))
+    
 
-;;MS. JAFARI NOTES:
-;;Grade: A+++++++++++++++++++
-;;nice job guys your use of begin was amazign
-;;btw i like yeet and yeeeeeeetn and beaaananana a a  a a a a aye e e  et ie t etieiuiusiusi aiu aiu aij askj s shhhhhhhhhhhhhhhhhhhhheh
-
-;;thx ms jafari
-
-;;World Struct
-;; contains the matrix, the score, and the active tetra
-;; (the one that is falling)
+  
 
 (require 2htdp/universe )
 (require 2htdp/image)
@@ -95,9 +89,17 @@
 ;; Matrix
 ;; The matrix is a 2D lists of list
 
-;recur : start end f 
 
-                 
+
+
+
+
+
+
+
+
+
+
 
 ;; Tetra block : Struct which contains the color of the tetra
 ;; the center of the tetra in which it rotates, and the rotation mode;
@@ -127,10 +129,37 @@
 (define S-tetra (make-tetra "red" (make-posn 1 1) false
                             (list (make-posn 0 1) (make-posn 1 1) (make-posn 1 0) (make-posn 2 0))))
 
+
+;; List of Posn in tetris (LoPit)
+;; List of tetras and their indexes (place in the list)
+
+(define LoPit (list (make-posn 0 O-tetra)(make-posn 1 L-tetra)
+                    (make-posn 2 J-tetra)(make-posn 3 I-tetra)
+                    (make-posn 4 T-tetra)(make-posn 5 Z-tetra)
+                                         (make-posn 6 S-tetra)))
+
+
+;; tetra-by-number: Number LoPit-> Tetra
+;; it takes in a number and returns a tetra
+;;
+;; example: (tetra-by-number 1)-> O-tetra
+
+(define (tetra-by-number num list)
+  (cond
+    [(empty? list) (error "array index out of bounds")]
+    [(equal? num (posn-x (first list))) (posn-y (first list))]
+    [else (tetra-by-number num (rest list))]))
+
 ;;
 ;;BIG BANG STUFF
 ;;
 
+
+
+
+;;World Struct
+;; contains the matrix, the score, and the active tetra
+;; (the one that is falling)
 (define-struct world (matrix active-tetra score interval time))
 
 ;;draw-tetra : world image -> image
@@ -201,7 +230,11 @@
   ;;(draw-tetra w grid-image)
   (make-tetra-image (world-active-tetra w) grid-image))
 
- 
+
+
+;;block-rotate-ccw: Posn Block-> Block
+;; takes in a posn and a block and rotates the block by
+;; counterclockwise 90 degrees (around the posn) 
 (define (block-rotate-ccw c b)
   (make-posn (+ (posn-x c)
                  (- (posn-y c)
@@ -265,7 +298,7 @@
 
 ;;falalalalala
 
-(big-bang (make-world 0 (move-tetra J-tetra (make-posn 3 0)) -10000 24 0)
+(big-bang (make-world 0 (move-tetra (tetra-by-number (random 0 6) LoPit) (make-posn 3 0)) -10000 24 0)
   [on-tick tick]
   [on-draw draw]
   [on-key key])
@@ -281,3 +314,7 @@
 ;;join-lists test
 
 (check-expect (join-lists (list 1 543 5 23 2 2) (list 2 54 3 3 2 2 22222 2 43 5)) (list 1 543 5 23 2 2 2 54 3 3 2 2 22222 2 43 5))
+
+
+
+;; block-rotate-ccw
