@@ -8,11 +8,8 @@
   (cond
     [(empty? list) empty]
     [else (cons (fist list) (function (rest list)))]))
-    
 
-  
-
-(require 2htdp/universe )
+(require 2htdp/universe)
 (require 2htdp/image)
 
 ;; Grid
@@ -262,21 +259,35 @@
     [else (cons (block-rotate-ccw center (first list)) (rotate-tetra-blocks center (rest list)))])
   )
 
+;;tetra-inside-x? : tetra Number -> boolean
+;;  if tetra is inside the bounds, return true
+;;
+;;(I-tetra) -> true
+
+(define (tetra-inside-x? tetra width)
+  (cond
+    [(empty? (tetra-blocks tetra)) true]
+    [(>= (posn-x (first (tetra-blocks tetra))) (- width 1)) false]
+    [(<= (posn-x (first (tetra-blocks tetra))) 0) false]
+    [else (tetra-inside-x? (make-tetra (tetra-color tetra) (tetra-center tetra) (tetra-center-corner? tetra) (rest (tetra-blocks tetra))) width)])
+  )
+
 ;;key: world key -> world
 ;;  moves active tetra
 ;;
+;;(color center center-corner? blocks
 
 (define (key w k)
   (cond
-    [(string=? k "right") (change-world-tetra w (move-tetra (world-active-tetra w) (make-posn 1 0)))]
-    [(string=? k "left") (change-world-tetra w (move-tetra (world-active-tetra w) (make-posn -1 0)))]
+    [(and (string=? k "right") (tetra-inside-x? (world-active-tetra w) WIDTH))
+     (change-world-tetra w (move-tetra (world-active-tetra w) (make-posn 1 0)))]
+    [(and (string=? k "left") (tetra-inside-x? (world-active-tetra w) WIDTH))
+     (change-world-tetra w (move-tetra (world-active-tetra w) (make-posn -1 0)))]
     [(string=? k "down") (change-world-tetra w (move-tetra (world-active-tetra w) (make-posn 0 1)))]
     [(string=? k "up") (change-world-tetra w (rotate-tetra (world-active-tetra w)))] ;;moves counter clockwise
     [(string=? k "s") (change-world-tetra w (rotate-tetra (world-active-tetra w)))]
     [(string=? k "a") (change-world-tetra w (rotate-tetra (rotate-tetra (rotate-tetra (world-active-tetra w)))))]
-    [else w]
-    )
-  )
+    [else w]))
 
 (define (change-world-tetra world tetra)
   (make-world (world-matrix world) tetra (world-score world) (world-interval world) (world-time world))
@@ -290,11 +301,17 @@
 (define (update-tetra-pos w)
   (move-tetra (world-active-tetra w) (make-posn 0 1)))
 
+
+;; tick function
+;;
+;;
 (define (tick w)
  (make-world (world-matrix w) (cond
                                 [(equal? (modulo (world-time w) (world-interval w)) 0) (update-tetra-pos w)]
                                 [else (world-active-tetra w)]) (world-score w) (world-interval w) (+ (world-time w) 1))
   )
+
+
 
 ;;falalalalala
 
