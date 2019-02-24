@@ -177,7 +177,10 @@
 ;;
 
 (define (move-tetra t posn-amnt)
-  (make-tetra (tetra-color t) (posn-add (tetra-center t) posn-amnt) (tetra-center-corner? t) (add-posn-list (tetra-blocks t) posn-amnt)))
+  (make-tetra (tetra-color t)
+              (posn-add (tetra-center t) posn-amnt)
+              (tetra-center-corner? t)
+              (add-posn-list (tetra-blocks t) posn-amnt)))
 
 ;;add-posn-list: listofposns posn -> list
 ;;  adds posn to each posn of list
@@ -264,12 +267,31 @@
 ;;
 ;;(I-tetra) -> true
 
-(define (tetra-inside-x? tetra width)
+(define (in-left? tetra width)
+  (cond
+    [(empty? (tetra-blocks tetra)) true]
+    [(<= (posn-x (first (tetra-blocks tetra))) 0) false]
+    [else (in-left? (make-tetra (tetra-color tetra) (tetra-center tetra) (tetra-center-corner? tetra) (rest (tetra-blocks tetra))) width)])
+  )
+
+(define (in-right? tetra width)
   (cond
     [(empty? (tetra-blocks tetra)) true]
     [(>= (posn-x (first (tetra-blocks tetra))) (- width 1)) false]
-    [(<= (posn-x (first (tetra-blocks tetra))) 0) false]
-    [else (tetra-inside-x? (make-tetra (tetra-color tetra) (tetra-center tetra) (tetra-center-corner? tetra) (rest (tetra-blocks tetra))) width)])
+    [else (in-right? (make-tetra (tetra-color tetra) (tetra-center tetra) (tetra-center-corner? tetra) (rest (tetra-blocks tetra))) width)])
+  )
+
+;;clamp-x -> posn number number -> returns posn
+;;  clamps x axis of posn to min/max
+;;
+
+(define (clamp-x pos min max)
+  (make-posn
+   (cond
+     [(> (posn-x pos) max) max]
+     [(< (posn-x pos) min) min]
+     [else (posn-x pos)])
+   (posn-y pos))
   )
 
 ;;key: world key -> world
@@ -279,10 +301,10 @@
 
 (define (key w k)
   (cond
-    [(and (string=? k "right") (tetra-inside-x? (world-active-tetra w) WIDTH))
-     (change-world-tetra w (move-tetra (world-active-tetra w) (make-posn 1 0)))]
-    [(and (string=? k "left") (tetra-inside-x? (world-active-tetra w) WIDTH))
-     (change-world-tetra w (move-tetra (world-active-tetra w) (make-posn -1 0)))]
+    [(string=? k "right")
+     (change-world-tetra w (move-tetra (world-active-tetra w) (if (in-right? (world-active-tetra w) WIDTH) (make-posn 1 0) (make-posn 0 0))))]
+    [(string=? k "left")
+     (change-world-tetra w (move-tetra (world-active-tetra w) (if (in-left? (world-active-tetra w) WIDTH) (make-posn -1 0) (make-posn 0 0))))]
     [(string=? k "down") (change-world-tetra w (move-tetra (world-active-tetra w) (make-posn 0 1)))]
     [(string=? k "up") (change-world-tetra w (rotate-tetra (world-active-tetra w)))] ;;moves counter clockwise
     [(string=? k "s") (change-world-tetra w (rotate-tetra (world-active-tetra w)))]
