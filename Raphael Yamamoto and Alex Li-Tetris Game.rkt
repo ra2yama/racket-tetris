@@ -1,13 +1,10 @@
-;; The first three lines of this file were inserted by DrRacket. They record metadata
-;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-advanced-reader.ss" "lang")((modname |Raphael Yamamoto and Alex Li-Tetris Game|) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "batch-io.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp")) #f)))
 ;; Our Tetris Game 
 
 ;; Recursive Template
 #;(define (function list)
-  (cond
-    [(empty? list) empty]
-    [else (cons (fist list) (function (rest list)))]))
+(cond
+[(empty? list) empty]
+[else (cons (fist list) (function (rest list)))]))
 
 (require 2htdp/universe)
 (require 2htdp/image)
@@ -83,18 +80,6 @@
     )
   )
 
-;; Matrix
-;; The matrix is a 2D lists of list
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -133,7 +118,7 @@
 (define LoPit (list (make-posn 0 O-tetra)(make-posn 1 L-tetra)
                     (make-posn 2 J-tetra)(make-posn 3 I-tetra)
                     (make-posn 4 T-tetra)(make-posn 5 Z-tetra)
-                                         (make-posn 6 S-tetra)))
+                    (make-posn 6 S-tetra)))
 
 
 ;; tetra-by-number: Number LoPit-> Tetra
@@ -151,13 +136,15 @@
 ;;BIG BANG STUFF
 ;;
 
-
+;; Block Struct
+;; contains a color and position
+(define-struct block (color posn))
 
 
 ;;World Struct
 ;; contains the matrix, the score, and the active tetra
 ;; (the one that is falling)
-(define-struct world (matrix active-tetra score interval time))
+(define-struct world (blocks active-tetra score interval time))
 
 ;;draw-tetra : world image -> image
 ;;  adds the active tetra to the scene
@@ -237,11 +224,11 @@
 ;; counterclockwise 90 degrees (around the posn) 
 (define (block-rotate-ccw c b)
   (make-posn (+ (posn-x c)
-                 (- (posn-y c)
-                    (posn-y b)))
-              (+ (posn-y c)
-                 (- (posn-x b)
-                    (posn-x c)))))
+                (- (posn-y c)
+                   (posn-y b)))
+             (+ (posn-y c)
+                (- (posn-x b)
+                   (posn-x c)))))
 
 ;;rotate-tetra: tetra -> tetra
 ;;  rotates tetra ccw by 90 degrees
@@ -312,33 +299,58 @@
     [else w]))
 
 (define (change-world-tetra world tetra)
-  (make-world (world-matrix world) tetra (world-score world) (world-interval world) (world-time world))
+  (make-world (world-blocks world) tetra (world-score world) (world-interval world) (world-time world))
   )
+
+
+
+;; Tetra->Block
+;; takes in a tetra and returns a block
+;;
+;;example: (O-tetra)->(list (block "green" (posn 1 0)))
+
+(define (tetra->block t)
+  (cond
+    [(empty? (tetra-blocks t)) empty]
+    [else (cons (make-block (tetra-color t) (first (tetra-blocks t)))
+                            (tetra->block (make-tetra (tetra-color t) (tetra-center t) (tetra-center-corner? t) (rest (tetra-blocks t)))))]))
+
+
 
 ;;update-tetra-pos : world -> world
 ;;  changes tetra position down one
 ;;
 ;;
 
-(define (update-tetra-pos w)
-  (move-tetra (world-active-tetra w) (make-posn 0 1)))
+#;(define (update-tetra-pos w)
+  (cond
+    [(bottom? (active-tetra-posn w)) (make-world (tetra-block (join-list (world-blocks w) (
+    [move-tetra (world-active-tetra w) (make-posn 0 1)]))))]))
+
+
+
+;; 
+
 
 
 ;; tick function
 ;;
 ;;
-(define (tick w)
- (make-world (world-matrix w) (cond
-                                [(equal? (modulo (world-time w) (world-interval w)) 0) (update-tetra-pos w)]
-                                [else (world-active-tetra w)]) (world-score w) (world-interval w) (+ (world-time w) 1))
+#;(define (tick w)
+  (make-world (world-blocks w) (cond
+                                 [(equal? (modulo (world-time w) (world-interval w)) 0) (update-tetra-pos w)]
+                                 [else (world-active-tetra w)]) (world-score w) (world-interval w) (+ (world-time w) 1))
   )
+
+
+
 
 
 
 ;;falalalalala
 
 (big-bang (make-world 0 (move-tetra (tetra-by-number (random 0 6) LoPit) (make-posn 3 0)) -10000 24 0)
-  [on-tick tick]
+ ;; [on-tick tick]
   [on-draw draw]
   [on-key key])
 
