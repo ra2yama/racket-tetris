@@ -8,3 +8,14 @@
   )
 
 (repeat 0 10 10)
+
+;;repeat : Number Number Function -> Number
+;;  iterates based on number from (in-range start end)
+;;
+;;(repeat 0 10 (lambda (n) (* n 1))) -> 0 1 2 3 4 5 6 7 8 9
+
+(define (repeat start end f)
+  (cond
+    [(>= start (- end 1)) (f start)]
+    [else (begin (f start) (repeat (+ 1 start) end f))]))
+;; this has begin, though we don't use this function yet
